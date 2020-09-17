@@ -1,6 +1,14 @@
 const { query } = require('../database/connectionMysql');
+const { checkHavePermission } = require('../utils/validaJwt');
 
-function buscarLogsPorUsuario(req, res) {
+async function buscarLogsPorUsuario(req, res) {
+	const token = req.headers['x-access-token'];
+	const hasPermission = await checkHavePermission(token);
+	if (!hasPermission) {
+		res
+			.status(401)
+			.send('Você não possui permissão para executar essa operação');
+	}
 	let fetch =
 		'SELECT c.email as usuario, b.nome as modulo, a.horarioAcesso FROM logs AS a INNER JOIN modulos AS b ON a.idModulo = b.idModulo INNER JOIN usuario AS c ON a.idUsuario = c.idUsuario';
 	fetch +=

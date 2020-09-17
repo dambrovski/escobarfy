@@ -5,7 +5,12 @@ const { connection } = require('../database/connectionMysql');
 const query = util.promisify(connection.query).bind(connection);
 
 async function checkHavePermission(token, permission = 2) {
-	const decoded = jwt.verify(token, process.env.SECRET);
+	let decoded;
+	try {
+		decoded = jwt.verify(token, process.env.SECRET);
+	} catch (err) {
+		return false;
+	}
 	const fetch = `SELECT * FROM usuario WHERE idUsuario = ${decoded.id} and permissao = ${permission}`;
 	try {
 		const result = await query(fetch);
